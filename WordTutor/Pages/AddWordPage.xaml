@@ -35,6 +35,17 @@
               Grid.Row="1" 
               Margin="12,0,12,0">
 
+            <StackPanel>
+                <TextBlock x:Name="hintText"
+                           Text="Type a word to translate:"/>
+                <TextBox x:Name="textToTranslate"
+                         Height="75"/>
+                <Button x:Name="translateButton" Content="Translate"
+                        HorizontalAlignment="Center"
+                        Width="436"
+                        Click="translateButton_Click"/>
+                <TextBlock x:Name="translationResult"/>
+            </StackPanel>
         </Grid>
     </Grid>
 
