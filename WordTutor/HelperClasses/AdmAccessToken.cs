@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Transl8
+namespace WordTutor.Helpers
 {
     public class AdmAccessToken
     {

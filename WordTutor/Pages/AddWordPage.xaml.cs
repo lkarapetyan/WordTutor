@@ -8,7 +8,7 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 
-using Transl8;
+using WordTutor.Helpers;
 namespace WordTutor.Pages
 {
     public partial class AddWordPage : PhoneApplicationPage
