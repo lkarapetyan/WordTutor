@@ -93,6 +93,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HelperClasses\AdmAccessToken.cs" />
     <Compile Include="Pages\AddWordPage.xaml.cs">
       <DependentUpon>AddWordPage.xaml</DependentUpon>
     </Compile>
