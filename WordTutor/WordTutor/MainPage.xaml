@@ -25,7 +25,6 @@
         <Pivot>
             <local:LearningPage></local:LearningPage>
             <local:LearnedPage></local:LearnedPage>
-            <local:SettingsPage></local:SettingsPage>
         </Pivot>
     </Grid>
 
@@ -35,6 +34,12 @@
                           Label="Add"
                           Icon="Add"
                           Click="addButton_Click"/>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Uid="settingsButton"
+                              x:Name="settingsButton" 
+                              Label="Settings"
+                              Click="settingsButton_Click"/>
+            </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

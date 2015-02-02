@@ -131,5 +131,10 @@ namespace WordTutor
         {
             Frame.Navigate(typeof(AddWordPage));
         }
+
+        private void settingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(SettingsPage));
+        }
     }
 }
