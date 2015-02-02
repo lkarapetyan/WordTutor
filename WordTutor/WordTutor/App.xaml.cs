@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using WordTutor.ViewModels;
 
 // The Pivot Application template is documented at http://go.microsoft.com/fwlink/?LinkID=391641
 
@@ -27,6 +28,7 @@ namespace WordTutor
     public sealed partial class App : Application
     {
         private TransitionCollection transitions;
+        private static WordListViewModel viewModel = null;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -36,6 +38,22 @@ namespace WordTutor
         {
             this.InitializeComponent();
             this.Suspending += this.OnSuspending;
+        }
+
+         /// <summary>
+        /// A static ViewModel used by the views to bind against.
+        /// </summary>
+        /// <returns>The MainViewModel object.</returns>
+        public static WordListViewModel ViewModel
+        {
+            get
+            {
+                // Delay creation of the view model until necessary
+                if (viewModel == null)
+                    viewModel = new WordListViewModel();
+
+                return viewModel;
+            }
         }
 
         /// <summary>
@@ -52,6 +70,11 @@ namespace WordTutor
                 this.DebugSettings.EnableFrameRateCounter = true;
             }
 #endif
+
+            if (!App.ViewModel.IsDataLoaded)
+            {
+                App.ViewModel.LoadData();
+            }
 
             Frame rootFrame = Window.Current.Content as Frame;
 

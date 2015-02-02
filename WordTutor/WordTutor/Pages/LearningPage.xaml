@@ -10,4 +10,12 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <ListView ItemsSource="{Binding LearningWords}">
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Style="{StaticResource ListViewEmptyStaticTextBlockStyle}"></TextBlock>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
+
 </PivotItem>

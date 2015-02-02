@@ -111,6 +111,7 @@
     <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="DataModel\SampleDataSource.cs" />
     <Compile Include="HelperClasses\AdmAccessToken.cs" />
+    <Compile Include="Models\Word.cs" />
     <Compile Include="Pages\AddWordPage.xaml.cs">
       <DependentUpon>AddWordPage.xaml</DependentUpon>
     </Compile>
@@ -127,6 +128,7 @@
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\WordListViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
