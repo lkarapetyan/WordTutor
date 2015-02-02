@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Navigation;
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
 using WordTutor.Helpers;
+using WordTutor.Common;
 namespace WordTutor
 {
     /// <summary>
@@ -25,6 +26,7 @@ namespace WordTutor
     /// </summary>
     public sealed partial class AddWordPage : Page
     {
+        private NavigationHelper navigationHelper;
         private static string strTextToTranslate = "";
         private static string strLngTo = "es";
         AdmAccessToken bingToken = new AdmAccessToken();
@@ -32,16 +34,28 @@ namespace WordTutor
         public AddWordPage()
         {
             this.InitializeComponent();
+
+            this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
+            this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
         }
 
         /// <summary>
-        /// Invoked when this page is about to be displayed in a Frame.
+        /// Gets the <see cref="NavigationHelper"/> associated with this <see cref="Page"/>.
         /// </summary>
-        /// <param name="e">Event data that describes how this page was reached.
-        /// This parameter is typically used to configure the page.</param>
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        public NavigationHelper NavigationHelper
+        {
+            get { return this.navigationHelper; }
+        }
+
+        private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
         }
+
+        private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        {
+        }
+
 
         // The code for BING translator is taken from http://blogs.msdn.com/b/translation/p/windowsphone8.aspx
 
@@ -149,5 +163,32 @@ namespace WordTutor
                 translationResult.Text = strTest;
             });
         }
+
+        #region NavigationHelper registration
+
+        /// <summary>
+        /// The methods provided in this section are simply used to allow
+        /// NavigationHelper to respond to the page's navigation methods.
+        /// <para>
+        /// Page specific logic should be placed in event handlers for the
+        /// <see cref="NavigationHelper.LoadState"/>
+        /// and <see cref="NavigationHelper.SaveState"/>.
+        /// The navigation parameter is available in the LoadState method
+        /// in addition to page state preserved during an earlier session.
+        /// </para>
+        /// </summary>
+        /// <param name="e">Provides data for navigation methods and event
+        /// handlers that cannot cancel the navigation request.</param>
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            this.navigationHelper.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            this.navigationHelper.OnNavigatedFrom(e);
+        }
+
+        #endregion
     }
 }
