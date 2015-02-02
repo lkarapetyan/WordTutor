@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.Storage;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -99,10 +100,41 @@ namespace WordTutor
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             this.navigationHelper.OnNavigatedTo(e);
+
+            // Get the saved values of the translate from/to combo boxes and populate the selected values
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("tramslateFromLanguage"))
+            {
+                String selectedTag = ApplicationData.Current.LocalSettings.Values["tramslateFromLanguage"].ToString();
+                ItemCollection fromComboBoxItems = translateFromComboBox.Items;
+                foreach (ComboBoxItem comboBoxItem in fromComboBoxItems)
+                {
+                    if (comboBoxItem.Tag.ToString() == selectedTag)
+                    {
+                        translateFromComboBox.SelectedItem = comboBoxItem;
+                    }
+                }
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("tramslateToLanguage"))
+            {
+                String selectedTag = ApplicationData.Current.LocalSettings.Values["tramslateToLanguage"].ToString();
+                ItemCollection toComboBoxItems = translateToComboBox.Items;
+                foreach (ComboBoxItem comboBoxItem in toComboBoxItems)
+                {
+                    if (comboBoxItem.Tag.ToString() == selectedTag)
+                    {
+                        translateToComboBox.SelectedItem = comboBoxItem;
+                    }
+                }
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            // Save the selected values of the translate from/to combo boxes
+            ApplicationData.Current.LocalSettings.Values["tramslateFromLanguage"] = ((ComboBoxItem)translateFromComboBox.SelectedItem).Tag.ToString();
+            ApplicationData.Current.LocalSettings.Values["tramslateToLanguage"] = ((ComboBoxItem)translateToComboBox.SelectedItem).Tag.ToString();
+
             this.navigationHelper.OnNavigatedFrom(e);
         }
 
