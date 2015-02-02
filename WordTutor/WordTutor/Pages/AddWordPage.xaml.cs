@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Navigation;
 
 using WordTutor.Helpers;
 using WordTutor.Common;
+using WordTutor.Models;
 namespace WordTutor
 {
     /// <summary>
@@ -161,6 +162,7 @@ namespace WordTutor
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 translationResult.Text = strTest;
+                App.ViewModel.addWord(new Word() { Text = strTest, Learning = true });
             });
         }
 

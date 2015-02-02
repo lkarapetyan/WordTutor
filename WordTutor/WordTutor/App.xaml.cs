@@ -158,6 +158,7 @@ namespace WordTutor
         {
             var deferral = e.SuspendingOperation.GetDeferral();
             await SuspensionManager.SaveAsync();
+            await ViewModel.SaveData();
             deferral.Complete();
         }
     }
