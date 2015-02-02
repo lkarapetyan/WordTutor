@@ -14,12 +14,14 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.Storage;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
 using WordTutor.Helpers;
 using WordTutor.Common;
 using WordTutor.Models;
+
 namespace WordTutor
 {
     /// <summary>
@@ -29,7 +31,6 @@ namespace WordTutor
     {
         private NavigationHelper navigationHelper;
         private static string strTextToTranslate = "";
-        private static string strLngTo = "es";
         AdmAccessToken bingToken = new AdmAccessToken();
 
         public AddWordPage()
@@ -128,7 +129,9 @@ namespace WordTutor
         {
             try 
             {
-                string uri = "http://api.microsofttranslator.com/v2/Http.svc/Translate?text=" + WebUtility.UrlEncode(strTextToTranslate) + "&from=en&to=" + strLngTo;
+                string strLngFrom = ApplicationData.Current.LocalSettings.Values["tramslateFromLanguage"].ToString();
+                string strLngTo = ApplicationData.Current.LocalSettings.Values["tramslateToLanguage"].ToString();
+                string uri = "http://api.microsofttranslator.com/v2/Http.svc/Translate?text=" + WebUtility.UrlEncode(strTextToTranslate) + "&from=" + strLngFrom + "&to=" + strLngTo;
                 System.Net.WebRequest translationWebRequest = System.Net.HttpWebRequest.Create(uri);
                 // The authorization header needs to be "Bearer" + " " + the access token
                 string headerValue = "Bearer " + bingToken.access_token;
