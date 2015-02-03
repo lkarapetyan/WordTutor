@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.Storage;
+using System.Text.RegularExpressions;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -101,6 +102,41 @@ namespace WordTutor
         {
             this.navigationHelper.OnNavigatedTo(e);
 
+            // Populate the translate from/to combo boxes with the supported language lists
+            // On the very first lauch no languages are selected. Use "from English to English" by default
+            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("supportedLanguageCodes") &&
+                ApplicationData.Current.LocalSettings.Values.ContainsKey("supportedLanguagenames"))
+            {
+                // Remove the [, ], " and get the array of codes and names
+                string langCodesStr = ApplicationData.Current.LocalSettings.Values["supportedLanguageCodes"].ToString();
+                string langNamesStr = ApplicationData.Current.LocalSettings.Values["supportedLanguageNames"].ToString();
+                string[] langCodes = Regex.Replace(langCodesStr, @"[\[\]""]+", "").Split(new char[] { ',' });
+                string[] langNames = Regex.Replace(langNamesStr, @"[\[\]""]+", "").Split(new char[] { ',' });
+
+                if (langCodes.Length == langNames.Length)
+                {
+                    for (int i = 0; i < langCodes.Length; ++i)
+                    {
+                        ComboBoxItem comboBoxItemFrom = new ComboBoxItem();
+                        ComboBoxItem comboBoxItemTo = new ComboBoxItem();
+                        comboBoxItemFrom.Tag = comboBoxItemTo.Tag = langCodes[i];
+                        comboBoxItemFrom.Content = comboBoxItemTo.Content = langNames[i];
+                        translateFromComboBox.Items.Add(comboBoxItemFrom);
+                        translateToComboBox.Items.Add(comboBoxItemTo);
+                        if (langCodes[i] == "en")
+                        {
+                            translateFromComboBox.SelectedItem = comboBoxItemFrom;
+                            translateToComboBox.SelectedItem = comboBoxItemTo;
+                        }
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Something went incorrect. Languages codes and names arrays do not have the same size");
+                }
+
+            }
+
             // Get the saved values of the translate from/to combo boxes and populate the selected values
             if (ApplicationData.Current.LocalSettings.Values.ContainsKey("tramslateFromLanguage"))
             {
@@ -132,8 +168,15 @@ namespace WordTutor
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             // Save the selected values of the translate from/to combo boxes
-            ApplicationData.Current.LocalSettings.Values["tramslateFromLanguage"] = ((ComboBoxItem)translateFromComboBox.SelectedItem).Tag.ToString();
-            ApplicationData.Current.LocalSettings.Values["tramslateToLanguage"] = ((ComboBoxItem)translateToComboBox.SelectedItem).Tag.ToString();
+            if (translateFromComboBox.SelectedItem != null)
+            {
+                ApplicationData.Current.LocalSettings.Values["tramslateFromLanguage"] = ((ComboBoxItem)translateFromComboBox.SelectedItem).Tag.ToString();
+            }
+
+            if (translateToComboBox.SelectedItem != null)
+            {
+                ApplicationData.Current.LocalSettings.Values["tramslateToLanguage"] = ((ComboBoxItem)translateToComboBox.SelectedItem).Tag.ToString();
+            }
 
             this.navigationHelper.OnNavigatedFrom(e);
         }

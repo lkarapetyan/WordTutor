@@ -140,7 +140,7 @@ namespace WordTutor
             Window.Current.Activate();
 
             // Fetch the languages supported by BING
-            FetchSupportedLanguages();
+            FetchSupportedLanguageCodes();
         }
 
         /// <summary>
@@ -171,13 +171,13 @@ namespace WordTutor
         /// <summary>
         /// Is used to fetch the languages codes supported by BING
         /// </summary>
-        private void FetchSupportedLanguages()
+        private void FetchSupportedLanguageCodes()
         {
             // TODO currently this is written for BING. Add switch case for other translators
             if (AdmAccessToken._admAccessToken.access_token != "")
             {
                 // We already have the access token. Proceed with the fetch request
-                FetchBingSupportedLanguages();
+                FetchBingSupportedLanguageCodes();
             }
             else
             {
@@ -189,30 +189,30 @@ namespace WordTutor
 
         private void OnAccessTokenAvailable()
         {
-            FetchBingSupportedLanguages();
+            FetchBingSupportedLanguageCodes();
         }
 
-        private void FetchBingSupportedLanguages()
+        private void FetchBingSupportedLanguageCodes()
         {
             try
             {
-                string uri = "http://api.microsofttranslator.com/V2/Ajax.svc/GetLanguagesForTranslate";
-                System.Net.WebRequest translationWebRequest = System.Net.HttpWebRequest.Create(uri);
+                string uriForCodes = "http://api.microsofttranslator.com/V2/Ajax.svc/GetLanguagesForTranslate";
+                System.Net.WebRequest translationWebRequest = System.Net.HttpWebRequest.Create(uriForCodes);
                 // The authorization header needs to be "Bearer" + " " + the access token
                 string headerValue = "Bearer " + AdmAccessToken._admAccessToken.access_token;
                 translationWebRequest.Headers["Authorization"] = headerValue;
                 // And now we call the service. When the translation is complete, we'll get the callback
-                IAsyncResult writeRequestStreamCallback = (IAsyncResult)translationWebRequest.BeginGetResponse(new AsyncCallback(BingSupportedLanguagesFetched), translationWebRequest);
+                IAsyncResult writeRequestStreamCallback = (IAsyncResult)translationWebRequest.BeginGetResponse(new AsyncCallback(BingSupportedLanguageCodesFetched), translationWebRequest);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Something bad happened " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Something bad happened while fetching language codes" + ex.Message);
             }
         }
 
-        private void BingSupportedLanguagesFetched(IAsyncResult ar)
+        private void BingSupportedLanguageCodesFetched(IAsyncResult ar)
         {
-            // Fetch language codes
+            // Fetched language codes
             // Get the request details
             HttpWebRequest request = (HttpWebRequest)ar.AsyncState;
             // Get the response details
@@ -220,7 +220,37 @@ namespace WordTutor
             // Read the contents of the response into a string
             System.IO.Stream streamResponse = response.GetResponseStream();
             System.IO.StreamReader streamRead = new System.IO.StreamReader(streamResponse);
-            ApplicationData.Current.LocalSettings.Values["supportedLanguageCodes"] = streamRead.ReadToEnd();
+            string langCodes = streamRead.ReadToEnd();
+            ApplicationData.Current.LocalSettings.Values["supportedLanguageCodes"] = langCodes;
+
+            // We have language codes. Fetch the language names as well
+            try
+            {
+                string uriForNames = "http://api.microsofttranslator.com/V2/Ajax.svc/GetLanguageNames?locale=en&languageCodes=" + langCodes;
+                System.Net.WebRequest translationWebRequest = System.Net.HttpWebRequest.Create(uriForNames);
+                // The authorization header needs to be "Bearer" + " " + the access token
+                string headerValue = "Bearer " + AdmAccessToken._admAccessToken.access_token;
+                translationWebRequest.Headers["Authorization"] = headerValue;
+                // And now we call the service. When the translation is complete, we'll get the callback
+                IAsyncResult writeRequestStreamCallback = (IAsyncResult)translationWebRequest.BeginGetResponse(new AsyncCallback(BingSupportedLanguageNamesFetched), translationWebRequest);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Something bad happened while fetching language names" + ex.Message);
+            }
+        }
+
+        private void BingSupportedLanguageNamesFetched(IAsyncResult ar)
+        {
+            // Fetched language names
+            // Get the request details
+            HttpWebRequest request = (HttpWebRequest)ar.AsyncState;
+            // Get the response details
+            HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(ar);
+            // Read the contents of the response into a string
+            System.IO.Stream streamResponse = response.GetResponseStream();
+            System.IO.StreamReader streamRead = new System.IO.StreamReader(streamResponse);
+            ApplicationData.Current.LocalSettings.Values["supportedLanguageNames"] = streamRead.ReadToEnd();
         }
     }
 }
