@@ -31,7 +31,6 @@ namespace WordTutor
     {
         private NavigationHelper navigationHelper;
         private static string strTextToTranslate = "";
-        AdmAccessToken bingToken = new AdmAccessToken();
 
         public AddWordPage()
         {
@@ -64,68 +63,28 @@ namespace WordTutor
         private void translateButton_Click(object sender, RoutedEventArgs e)
         {
             strTextToTranslate = textToTranslate.Text;
-            if (bingToken != null && bingToken.access_token != "")
+            if (AdmAccessToken._admAccessToken.access_token != "")
             {
                 // We already have the access token. Proceed with the translation request
-                sendTranslateViaBingRequest();
+                SendTranslateViaBingRequest();
             }
             else
             {
-                // TODO currently this is written for BING. Add switch case for other translators
-                // STEP 1: Create the request for the OAuth service that will
-                // get us our access tokens.
-                String strTranslatorAccessURI = "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13";
-                System.Net.WebRequest req = System.Net.WebRequest.Create(strTranslatorAccessURI);
-                req.Method = "POST";
-                req.ContentType = "application/x-www-form-urlencoded";
-                IAsyncResult writeRequestStreamCallback =
-                  (IAsyncResult)req.BeginGetRequestStream(new AsyncCallback(BingRequestStreamReady), req);
+                // Fetch the access token
+                AdmAccessToken._admAccessToken.AccessTokenAvailable += new AdmAccessToken.AccessTokenHandler(OnAccessTokenAvailable);
+                AdmAccessToken._admAccessToken.GetAccessToken();
+            }
+        }
+        
+        private void OnAccessTokenAvailable()
+        {
+            if (strTextToTranslate != "")
+            {
+                SendTranslateViaBingRequest();
             }
         }
 
-        private void BingRequestStreamReady(IAsyncResult ar)
-        {
-            // STEP 2: The request stream is ready. Write the request into the POST stream
-            string clientID = "MacTutor";
-            string clientSecret = "8o5famKEXj1/RG0QV92gglvHjQZKHJjsdyw99g5EAIk=";
-            String strRequestDetails = string.Format("grant_type=client_credentials&client_id={0}&client_secret={1}&scope=http://api.microsofttranslator.com", WebUtility.UrlEncode(clientID), WebUtility.UrlEncode(clientSecret));
-
-            // note, this isn't a new request -- the original was passed to beginrequeststream, so we're pulling a reference to it back out. It's the same request
-            System.Net.HttpWebRequest request = (System.Net.HttpWebRequest)ar.AsyncState;
-            // now that we have the working request, write the request details into it
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(strRequestDetails);
-            System.IO.Stream postStream = request.EndGetRequestStream(ar);
-            postStream.Write(bytes, 0, bytes.Length);
-            postStream.Dispose();
-            // now that the request is good to go, let's post it to the server
-            // and get the response. When done, the async callback will call the
-            // GetResponseCallback function
-            request.BeginGetResponse(new AsyncCallback(GetBingResponseCallback), request);
-        }
-
-        private void GetBingResponseCallback(IAsyncResult ar)
-        {
-            // STEP 3: Process the response callback to get the token
-            // we'll then use that token to call the translator service
-            // Pull the request out of the IAsynch result
-            HttpWebRequest request = (HttpWebRequest)ar.AsyncState;
-            HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(ar);
-            // Using JSON we'll pull the response details out, and load it into an AdmAccess token class
-            try
-            {
-                System.Runtime.Serialization.Json.DataContractJsonSerializer serializer = new
-                System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(AdmAccessToken));
-                bingToken = (AdmAccessToken)serializer.ReadObject(response.GetResponseStream());
-                sendTranslateViaBingRequest();
-
-             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Something bad happened " + ex.Message);
-            }
-        }
-
-        private void sendTranslateViaBingRequest()
+        private void SendTranslateViaBingRequest()
         {
             try 
             {
@@ -134,10 +93,11 @@ namespace WordTutor
                 string uri = "http://api.microsofttranslator.com/v2/Http.svc/Translate?text=" + WebUtility.UrlEncode(strTextToTranslate) + "&from=" + strLngFrom + "&to=" + strLngTo;
                 System.Net.WebRequest translationWebRequest = System.Net.HttpWebRequest.Create(uri);
                 // The authorization header needs to be "Bearer" + " " + the access token
-                string headerValue = "Bearer " + bingToken.access_token;
+                string headerValue = "Bearer " + AdmAccessToken._admAccessToken.access_token;
                 translationWebRequest.Headers["Authorization"] = headerValue;
                 // And now we call the service. When the translation is complete, we'll get the callback
-                IAsyncResult writeRequestStreamCallback = (IAsyncResult)translationWebRequest.BeginGetResponse(new AsyncCallback(bingTranslationReady), translationWebRequest);
+                IAsyncResult writeRequestStreamCallback = (IAsyncResult)translationWebRequest.BeginGetResponse(new AsyncCallback(BingTranslationReady), translationWebRequest);
+                strTextToTranslate = "";
             }
             catch (Exception ex)
             {
@@ -145,7 +105,7 @@ namespace WordTutor
             }
         }
 
-        private async void bingTranslationReady(IAsyncResult ar)
+        private async void BingTranslationReady(IAsyncResult ar)
         {
             // STEP 4: Process the translation
             // Get the request details
@@ -161,7 +121,6 @@ namespace WordTutor
               System.Xml.Linq.XDocument.Parse(responseString);
             string strTest = xTranslation.Root.FirstNode.ToString();
             // We're not on the UI thread, so use the dispatcher to update the UI
-            //Deployment.Current.Dispatcher.BeginInvoke(() => translationResult.Text = strTest);
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 translationResult.Text = strTest;
