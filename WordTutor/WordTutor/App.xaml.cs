@@ -17,6 +17,9 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using WordTutor.ViewModels;
+using WordTutor.Helpers;
+using System.Net;
+using Windows.Storage;
 
 // The Pivot Application template is documented at http://go.microsoft.com/fwlink/?LinkID=391641
 
@@ -135,6 +138,9 @@ namespace WordTutor
 
             // Ensure the current window is active.
             Window.Current.Activate();
+
+            // Fetch the languages supported by BING
+            FetchSupportedLanguages();
         }
 
         /// <summary>
@@ -160,6 +166,61 @@ namespace WordTutor
             await SuspensionManager.SaveAsync();
             await ViewModel.SaveData();
             deferral.Complete();
+        }
+
+        /// <summary>
+        /// Is used to fetch the languages codes supported by BING
+        /// </summary>
+        private void FetchSupportedLanguages()
+        {
+            // TODO currently this is written for BING. Add switch case for other translators
+            if (AdmAccessToken._admAccessToken.access_token != "")
+            {
+                // We already have the access token. Proceed with the fetch request
+                FetchBingSupportedLanguages();
+            }
+            else
+            {
+                // Fetch the access token
+                AdmAccessToken._admAccessToken.AccessTokenAvailable += new AdmAccessToken.AccessTokenHandler(OnAccessTokenAvailable);
+                AdmAccessToken._admAccessToken.GetAccessToken();
+            }
+        }
+
+        private void OnAccessTokenAvailable()
+        {
+            FetchBingSupportedLanguages();
+        }
+
+        private void FetchBingSupportedLanguages()
+        {
+            try
+            {
+                string uri = "http://api.microsofttranslator.com/V2/Ajax.svc/GetLanguagesForTranslate";
+                System.Net.WebRequest translationWebRequest = System.Net.HttpWebRequest.Create(uri);
+                // The authorization header needs to be "Bearer" + " " + the access token
+                string headerValue = "Bearer " + AdmAccessToken._admAccessToken.access_token;
+                translationWebRequest.Headers["Authorization"] = headerValue;
+                // And now we call the service. When the translation is complete, we'll get the callback
+                IAsyncResult writeRequestStreamCallback = (IAsyncResult)translationWebRequest.BeginGetResponse(new AsyncCallback(BingSupportedLanguagesFetched), translationWebRequest);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Something bad happened " + ex.Message);
+            }
+        }
+
+        private void BingSupportedLanguagesFetched(IAsyncResult ar)
+        {
+            // Fetch language codes
+            // Get the request details
+            HttpWebRequest request = (HttpWebRequest)ar.AsyncState;
+            // Get the response details
+            HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(ar);
+            // Read the contents of the response into a string
+            System.IO.Stream streamResponse = response.GetResponseStream();
+            System.IO.StreamReader streamRead = new System.IO.StreamReader(streamResponse);
+            ApplicationData.Current.LocalSettings.Values["supportedLanguageCodes"] = streamRead.ReadToEnd();
         }
     }
 }
