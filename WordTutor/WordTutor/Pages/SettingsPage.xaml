@@ -41,19 +41,6 @@
                 HorizontalAlignment="Stretch" 
                 Margin="0,10,0,0" 
                 VerticalAlignment="Top">
-                <ComboBoxItem Content="English"
-                              IsSelected="True" 
-                              Tag="en"/>
-                <ComboBoxItem Content="Spanish" 
-                              Tag="es"/>
-                <ComboBoxItem Content="German" 
-                              Tag="de"/>
-                <ComboBoxItem Content="French" 
-                              Tag="fr"/>
-                <ComboBoxItem Content="Russian" 
-                              Tag="ru"/>
-                <ComboBoxItem Content="Italian" 
-                              Tag="it"/>
             </ComboBox>
             <TextBlock x:Name="translateToLabel"
                        Margin="0, 90, 0, 0"
@@ -63,19 +50,6 @@
                 HorizontalAlignment="Stretch" 
                 Margin="0,100,0,0" 
                 VerticalAlignment="Top">
-                <ComboBoxItem Content="English"  
-                              Tag="en"/>
-                <ComboBoxItem Content="Spanish" 
-                              IsSelected="True" 
-                              Tag="es"/>
-                <ComboBoxItem Content="German" 
-                              Tag="de"/>
-                <ComboBoxItem Content="French" 
-                              Tag="fr"/>
-                <ComboBoxItem Content="Russian" 
-                              Tag="ru"/>
-                <ComboBoxItem Content="Italian" 
-                              Tag="it"/>
             </ComboBox>
         </Grid>
     </Grid>
