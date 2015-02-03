@@ -13,7 +13,10 @@
     <ListView ItemsSource="{Binding LearnedWords}">
         <ListView.ItemTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Style="{StaticResource ListViewEmptyStaticTextBlockStyle}"></TextBlock>
+                <StackPanel>
+                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Style="{StaticResource ListViewEmptyStaticTextBlockStyle}"></TextBlock>
+                    <TextBlock Text="{Binding Descriptions[0].Text}" TextWrapping="Wrap" Style="{StaticResource ListViewItemSubheaderTextBlockStyle}"></TextBlock>
+                </StackPanel>
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>

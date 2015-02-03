@@ -165,7 +165,13 @@ namespace WordTutor
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 translationResult.Text = strTest;
-                App.ViewModel.addWord(new Word() { Text = strTest, Learning = true });
+                WwwFormUrlDecoder decoder = new WwwFormUrlDecoder(request.RequestUri.Query);
+                Word w = new Word();
+                w.Text = decoder.GetFirstValueByName("text");
+                w.Learning = true;
+                Description d = new Description() { Text = strTest };
+                w.addDescription(d);
+                App.ViewModel.addWord(w);
             });
         }
 
